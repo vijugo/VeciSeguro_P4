@@ -1,0 +1,14 @@
+# ESP-IDF
+build/
+sdkconfig
+sdkconfig.old
+sdkconfig.defaults.old
+managed_components/
+.cache/
+*.pyc
+*.pyo
+__pycache__/
+.vscode/
+.idea/
+*.swp
+*.bak
