@@ -29,6 +29,9 @@ extern "C" void app_main(void)
     }
     ESP_ERROR_CHECK(ret);
 
+    // 1. Inicializar SD Card PRIMERO (antes que el C6) para evitar conflictos de reloj en SDMMC
+    sd_card_manager_init();
+
     // Inicializar Red y Event Loop (Esto dispara el arranque del coprocesador C6 via SDIO)
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -42,9 +45,6 @@ extern "C" void app_main(void)
     
     // Inicializar Ethernet (Puerto físico RJ45)
     ethernet_manager_init();
-
-    // Inicializar SD Card
-    sd_card_manager_init();
 
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_start());

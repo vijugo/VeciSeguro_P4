@@ -43,8 +43,8 @@ esp_err_t sd_card_manager_init(void)
         ESP_LOGI(TAG, "LDO4 activado correctamente.");
     }
 
-    // Esperar a que el voltaje se estabilice
-    vTaskDelay(pdMS_TO_TICKS(100));
+    // Esperar a que el voltaje se estabilice (aumentado para mayor seguridad)
+    vTaskDelay(pdMS_TO_TICKS(500));
 
     // 2. Configurar Host (SDMMC Slot 0)
     sdmmc_host_t host = SDMMC_HOST_DEFAULT();
@@ -53,7 +53,7 @@ esp_err_t sd_card_manager_init(void)
 
     // 3. Configurar Slot
     sdmmc_slot_config_t slot_config = SDMMC_SLOT_CONFIG_DEFAULT();
-    slot_config.width = 4;
+    slot_config.width = 4; // Restaurar a 4-bit ya que el hardware parece responder
     slot_config.clk = SD_CLK_GPIO;
     slot_config.cmd = SD_CMD_GPIO;
     slot_config.d0 = SD_D0_GPIO;
@@ -61,10 +61,13 @@ esp_err_t sd_card_manager_init(void)
     slot_config.d2 = SD_D2_GPIO;
     slot_config.d3 = SD_D3_GPIO;
     slot_config.flags |= SDMMC_SLOT_FLAG_INTERNAL_PULLUP;
+    
+    ESP_LOGI(TAG, "Configuración de pines: CLK=%d, CMD=%d, D0-D3=[%d,%d,%d,%d] (Modo 4-bit)", 
+             SD_CLK_GPIO, SD_CMD_GPIO, SD_D0_GPIO, SD_D1_GPIO, SD_D2_GPIO, SD_D3_GPIO);
 
     // 4. Montar sistema de archivos
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
-        .format_if_mount_failed = false,
+        .format_if_mount_failed = true, // Si es nueva o está corrupta, formatea
         .max_files = 5,
         .allocation_unit_size = 16 * 1024
     };
